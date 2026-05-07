@@ -23,9 +23,9 @@ input{width:100%;padding:10px;margin:8px 0;background:#333;color:#fff;border:1px
 <div>IA Totale: Matchs Réels + Actu + Coupons + Prédictions</div>
 </div>
 
-<button class="tab active" onclick="showTab('live',this)">Matchs Live</button>
-<button class="tab" onclick="showTab('coupon',this)">Créer Coupon</button>
-<button class="tab" onclick="showTab('chat',this)">Parler au Sphinx</button>
+<button class="tab active" id="tabLive" onclick="showTab('live')">Matchs Live</button>
+<button class="tab" id="tabCoupon" onclick="showTab('coupon')">Créer Coupon</button>
+<button class="tab" id="tabChat" onclick="showTab('chat')">Parler au Sphinx</button>
 
 <div id="live" class="result">
 <button class="btn" onclick="loadMatches()">CHARGER MATCHS J+J+1 + ANALYSE IA</button>
@@ -46,16 +46,20 @@ input{width:100%;padding:10px;margin:8px 0;background:#333;color:#fff;border:1px
 <script>
 let keys = {gemini: 'AIzaSyCKJXs5FsqbbZ_5pDzHK6M_IKYzOtHzuT4'};
 
-function showTab(tab,btn){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('live').style.display = tab=='live'?'block':'none';
-  document.getElementById('coupon').style.display = tab=='coupon'?'block':'none';
-  document.getElementById('chat').style.display = tab=='chat'?'block':'none';
+function showTab(tab){
+  document.getElementById('tabLive').classList.remove('active');
+  document.getElementById('tabCoupon').classList.remove('active');
+  document.getElementById('tabChat').classList.remove('active');
+  document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('active');
+  
+  document.getElementById('live').style.display = 'none';
+  document.getElementById('coupon').style.display = 'none';
+  document.getElementById('chat').style.display = 'none';
+  document.getElementById(tab).style.display = 'block';
 }
 
 async function callGemini(prompt){
-  if(keys.gemini.includes('TA_CLE_ICI')) throw new Error('Remplace TA_CLE_ICI par ta vraie clé ligne 47');
+  if(keys.gemini.includes('COLLE_TA_CLE')) throw new Error('Remplace COLLE_TA_CLE_ICI par ta vraie clé ligne 47');
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${keys.gemini}`, {
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -88,7 +92,7 @@ Uniquement des matchs réels de J+J+1. Pas d'invention. Si pas de matchs, dis-le
 }
 
 async function loadMatches(){
-  document.getElementById('liveData').innerHTML = 'Clique GÉNÉRER COUPON pour avoir les matchs analysés par l IA.';
+  document.getElementById('liveData').innerHTML = 'Clique sur Créer Coupon puis GÉNÉRER COUPON pour avoir les matchs analysés par l IA.';
 }
 
 async function askSphinx(){
