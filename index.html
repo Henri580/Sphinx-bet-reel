@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SPHINX BET REAL 2026</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body{background:#0a0a0a;color:#fff;font-family:Arial;padding:15px;margin:0}
+.header{text-align:center;border-bottom:2px solid #ffcc00;padding-bottom:15px}
+.sphinx{color:#ffcc00;font-size:24px;font-weight:bold}
+.tabs{display:flex;gap:5px;margin:15px 0;overflow-x:auto}
+.tab{background:#222;padding:10px 15px;border-radius:5px;cursor:pointer;white-space:nowrap}
+.tab.active{background:#ffcc00;color:#000;font-weight:bold}
+.card{background:#1a1a1a;border:1px solid #333;padding:15px;margin:10px 0;border-radius:8px}
+.prob{color:#00ff88;font-weight:bold}
+.analyse{color:#ffcc00;font-style:italic;margin-top:10px;border-left:2px solid #ffcc00;padding-left:10px}
+.news{color:#88aaff;font-size:13px;margin-top:8px}
+    button{background:#ffcc00;color:#000;padding:12px 20px;border:none;border-radius:5px;font-weight:bold;cursor:pointer;width:100%;margin:5px 0}
+    select,input{padding:10px;margin:5px 0;background:#333;color:#fff;border:1px solid #555;width:100%;box-sizing:border-box;border-radius:5px}
+.coupon{background:#0f1f0f;border:2px solid #00ff88}
+    #chatBox{height:300px;overflow-y:auto;border:1px solid #333;padding:10px;margin:10px 0}
+.msg-user{text-align:right;color:#88aaff;margin:5px 0}
+.msg-sphinx{text-align:left;color:#ffcc00;margin:5px 0}
+.update{font-size:12px;color:#888;text-align:center}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="sphinx">🗿 SPHINX BET REAL 2026</div>
+    <p>IA Totale: Matchs Réels + Actu + Coupons + Prédictions</p>
+    <p class="update" id="lastUpdate">Dernière sync : --</p>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('matchs')">Matchs Live</div>
+    <div class="tab" onclick="showTab('coupon')">Créer Coupon</div>
+    <div class="tab" onclick="showTab('sphinx')">Parler au Sphinx</div>
+  </div>
+  <div id="tab-matchs">
+    <select id="sport">
+      <option value="soccer_epl">Premier League</option>
+      <option value="soccer_spain_la_liga">La Liga</option>
+      <option value="soccer_uefa_champs_league">Ligue des Champions</option>
+      <option value="basketball_nba">NBA</option>
+      <option value="tennis_atp">Tennis ATP</option>
+    </select>
+    <button onclick="loadMatches()">CHARGER MATCHS J+J1 + ANALYSE IA</button>
+    <div id="results"></div>
+  </div>
+  <div id="tab-coupon" style="display:none;">
+    <div class="card coupon">
+      <h3>🎯 GÉNÉRATEUR COUPON IA</h3>
+      <select id="couponSport">
+        <option value="soccer">Football</option>
+        <option value="basketball">Basketball</option>
+        <option value="tennis">Tennis</option>
+      </select>
+      <button onclick="genererCoupon()">GÉNÉRER COUPON SPHINX</button>
+      <div id="couponResult"></div>
+    </div>
+  </div>
+  <div id="tab-sphinx" style="display:none;">
+    <div class="card">
+      <h3>💬 POSE TA QUESTION AU SPHINX</h3>
+      <div id="chatBox"></div>
+      <input type="text" id="userQuestion" placeholder="Ex: Prédis Real vs Barca, fais un coupon sûr...">
+      <button onclick="askSphinx()">DEMANDER AU SPHINX</button>
+    </div>
+  </div>
+<script>
+const RAPIDAPI_KEY = '657e9b7fc0mshfc76f9cca06108dp1b8170jsnfca85eb5bbe3';
+const ODDS_API_KEY = 'dad66f7980fba1e998d12d65252fbb98';
+const GEMINI_API_KEY = 'AIzaSyDNSGrD5-0ncbAfZSkbGcup3-aJpDP1NpE';
+const NEWS_API_KEY = '5beb3c7096ce45539eef8cd3a1f78774';
+let currentMatches = [];
+function showTab(tabName) {
+  document.querySelectorAll('[id^="tab-"]').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tabName).style.display = 'block';
+  event.target.classList.add('active');
+}
+async function loadMatches() {
+  const sport = document.getElementById('sport').value;
+  const results = document.getElementById('results');
+  results.innerHTML = '🗿 Le Sphinx consulte les astres et les bookmakers...';
+  try {
+    const url = `https://the-odds-api1.p.rapidapi.com/v4/sports/${sport}/odds?regions=eu&oddsFormat=decimal&markets=h2h,totals`;
+    const res = await fetch(url, {headers: {'X-RapidAPI-Key': RAPIDAPI_KEY,'X-RapidAPI-Host': 'the-odds-api1.p.rapidapi.com'}});
+    const matches = await res.json();
+    const now = new Date();
+    const tomorrow = new Date(now.getTime() + 48*60*60*1000);
+    currentMatches = matches.filter(m => new Date(m.commence_time) <= tomorrow).slice(0, 5);
+    if (currentMatches.length === 0) {results.innerHTML = 'Aucun match J+J1. Le Sphinx médite.';return;}
+    results.innerHTML = '';
+    for (const match of currentMatches) {
+      const news = await fetchNews(match.home_team, match.away_team);
+      const prophetie = await askGeminiMatch(match, news);
+      const date = new Date(match.commence_time).toLocaleString('fr-FR');
+      const odds = match.bookmakers[0]?.markets.find(m=>m.key==='h2h')?.outcomes || [];
+      const totals = match.bookmakers[0]?.markets.find(m=>m.key==='totals')?.outcomes || [];
+      let cotesHtml = odds.map(o => `${o.name}: <span class="prob">${o.price}</span>`).join(' | ');
+      if(totals.length) cotesHtml += `<br>+2.5: <span class="prob">${totals.find(t=>t.name==='Over')?.price || 'N/A'}</span>`;
+      results.innerHTML += `<div class="card"><b>${match.home_team} vs ${match.away_team}</b><br><span style="font-size:12px;color:#888;">${date} - ${match.sport_title}</span><br><br>${cotesHtml}<div class="news">📰 ${news}</div><div class="analyse">🗿 ${prophetie}</div></div>`;
+    }
+    document.getElementById('lastUpdate').innerText = `Dernière sync : ${new Date().toLocaleString('fr-FR')}`;
+  } catch(e) {results.innerHTML = 'Erreur: Les dieux brouillent la connexion.';}
+}
+async function fetchNews(team1, team2) {
+  try {
+    const query = encodeURIComponent(`"${team1}" OR "${team2}"`);
+    const res = await fetch(`https://newsapi.org/v2/everything?q=${query}&language=fr&sortBy=publishedAt&pageSize=1&apiKey=${NEWS_API_KEY}`);
+    const data = await res.json();
+    return data.articles[0]?.title || 'Aucune actu brûlante trouvée.';
+  } catch {return 'Actualité indisponible.';}
+}
+async function askGeminiMatch(match, news) {
+  const prompt = `Tu es le Sphinx de SPHINX BET REAL 2026. Match: ${match.home_team} vs ${match.away_team} le ${new Date(match.commence_time).toLocaleDateString('fr-FR')}. Actu: ${news}. Donne 1 phrase prophétique de 12 mots max sur le match. Style mystique antique. Interdit: conseil de pari direct, score exact.`;
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {method: 'POST',headers: {'Content-Type': 'application/json'},body: JSON.stringify({contents: [{parts: [{text: prompt}]}]})});
+    const data = await res.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text.trim() || 'Le Sphinx garde le silence...';
+  } catch {return 'Les astres sont voilés...';}
+}
+async function askSphinx() {
+  const question = document.getElementById('userQuestion').value;
+  if (!question) return;
+  const chatBox = document.getElementById('chatBox');
+  chatBox.innerHTML += `<div class="msg-user">Toi: ${question}</div>`;
+  document.getElementById('userQuestion').value = '';
+  chatBox.innerHTML += `<div class="msg-sphinx">🗿 Le Sphinx réfléchit...</div>`;
+  chatBox.scrollTop = chatBox.scrollHeight;
+  const context = `Matchs actuels: ${currentMatches.map(m=>`${m.home_team} vs ${m.away_team}`).join(', ')}. Tu es le Sphinx. Réponds à: ${question}. Si on te demande un coupon, crée 2-3 matchs avec marchés variés: 1X2, +1.5, +2.5, corners. Style mystique mais utile. Max 50 mots.`;
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {method: 'POST',headers: {'Content-Type': 'application/json'},body: JSON.stringify({contents: [{parts: [{text: context}]}]})});
+    const data = await res.json();
+    const reponse = data.candidates?.[0]?.content?.parts?.[0]?.text.trim() || 'Le Sphinx ne répond pas aux mortels confus.';
+    chatBox.lastChild.innerHTML = `<div class="msg-sphinx">🗿 Sphinx: ${reponse}</div>`;
+  } catch {chatBox.lastChild.innerHTML = `<div class="msg-sphinx">🗿 Sphinx: Les dieux coupent la liaison...</div>`;}
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+async function genererCoupon() {
+  const sport = document.getElementById('couponSport').value;
+  const result = document.getElementById('couponResult');
+  result.innerHTML = '🗿 Le Sphinx forge un coupon dans les flammes...';
+  const prompt = `Tu es le Sphinx. Génère un coupon de 3 matchs ${sport} J+J1. Format: Match | Marché | Cote. Marchés: 1X2, +1.5 buts, +2.5 buts, Corners +8.5. Donne des cotes réalistes 1.40-2.20. Style liste simple.`;
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {method: 'POST',headers: {'Content-Type': 'application/json'},body: JSON.stringify({contents: [{parts: [{text: prompt}]}]})});
+    const data = await res.json();
+    const coupon = data.candidates?.[0]?.content?.parts?.[0]?.text.trim() || 'Le Sphinx refuse de forger aujourd\'hui.';
+    result.innerHTML = `<div class="card coupon"><h4>🎯 COUPON SPHINX</h4><pre style="white-space:pre-wrap;">${coupon}</pre></div>`;
+  } catch {result.innerHTML = 'Erreur: Le feu sacré s\'est éteint.';}
+}
+window.onload = () => loadMatches();
+</script>
+</body>
+</html>
