@@ -12,10 +12,9 @@ h1{color:#FFD700;font-size:28px;margin:10px 0}
 .tab.active{background:#FFD700;color:#000}
 .btn{background:#FFD700;color:#000;border:none;padding:12px 20px;width:100%;font-weight:bold;font-size:16px;border-radius:5px;margin:10px 0;cursor:pointer}
 .btn:disabled{background:#555;color:#888}
-.key-box{background:#1a1a1a;padding:15px;border-radius:8px;margin-bottom:20px;border:1px solid #FFD700}
-input{width:100%;padding:10px;margin:8px 0;background:#333;color:#fff;border:1px solid #555;border-radius:5px;box-sizing:border-box}
 .result{background:#1a1a1a;padding:15px;border-radius:8px;margin-top:15px;white-space:pre-wrap;font-size:14px;line-height:1.4}
 .error{color:#ff4444;background:#2a0a0a;padding:10px;border-radius:5px;margin:10px 0}
+input{width:100%;padding:10px;margin:8px 0;background:#333;color:#fff;border:1px solid #555;border-radius:5px;box-sizing:border-box}
 </style>
 </head>
 <body>
@@ -24,18 +23,9 @@ input{width:100%;padding:10px;margin:8px 0;background:#333;color:#fff;border:1px
 <div>IA Totale: Matchs Réels + Actu + Coupons + Prédictions</div>
 </div>
 
-<div id="keyBox" class="key-box">
-<b>⚙️ CLÉS API - 1 seule fois</b>
-<input type="password" id="geminiKey" placeholder="Clé Gemini - Obligatoire">
-<input type="text" id="footballKey" placeholder="Clé API-Football - Optionnel">
-<input type="text" id="newsKey" placeholder="Clé NewsAPI - Optionnel">
-<button class="btn" onclick="saveKeys()">SAUVER LES CLÉS</button>
-</div>
-
 <button class="tab active" onclick="showTab('live')">Matchs Live</button>
 <button class="tab" onclick="showTab('coupon')">Créer Coupon</button>
 <button class="tab" onclick="showTab('chat')">Parler au Sphinx</button>
-<button class="btn" style="background:#ff4444" onclick="resetKeys()">RESET CLÉS</button>
 
 <div id="live" class="result">
 <button class="btn" onclick="loadMatches()">CHARGER MATCHS J+J+1 + ANALYSE IA</button>
@@ -54,9 +44,65 @@ input{width:100%;padding:10px;margin:8px 0;background:#333;color:#fff;border:1px
 </div>
 
 <script>
-let keys = JSON.parse(localStorage.getItem('sphinxKeys') || '{}');
+let keys = {gemini: 'AIzaSyCOLLE_TA_CLE_ICI'};
 
-if(keys.gemini) document.getElementById('keyBox').style.display = 'none';
+function showTab(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('live').style.display = tab=='live'?'block':'none';
+  document.getElementById('coupon').style.display = tab=='coupon'?'block':'none';
+  document.getElementById('chat').style.display = tab=='chat'?'block':'none';
+}
 
-function saveKeys(){
-  keys =
+async function callGemini(prompt){
+  if(keys.gemini.includes('AIzaSyBp4liKiA691GYTWFkff2KeRdmK1QzENp4')) throw new Error('Remplace COLLE_TA_CLE_ICI par ta vraie clé ligne 55');
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${keys.gemini}`, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+  });
+  const data = await res.json();
+  if(data.error) throw new Error(data.error.message);
+  if(!data.candidates) throw new Error('Réponse vide. Clé invalide ou quota épuisé. Vérifie sur aistudio.google.com');
+  return data.candidates[0].content.parts[0].text;
+}
+
+async function generateCoupon(){
+  const btn = document.getElementById('genBtn');
+  const out = document.getElementById('couponData');
+  btn.disabled = true;
+  out.innerHTML = '🗿 Le Sphinx forge ton coupon...';
+  try{
+    const prompt = `Tu es le SPHINX BET. Date: ${new Date().toLocaleDateString('fr-FR')}. Donne-moi 3 pronos foot du jour ultra sûrs avec cotes réelles. Format exact:
+1. Equipe A vs Equipe B - Prono @ Cote
+2. Equipe C vs Equipe D - Prono @ Cote  
+3. Equipe E vs Equipe F - Prono @ Cote
+Cote totale: X.XX
+Uniquement des matchs réels de J+J+1. Pas d'invention. Si pas de matchs, dis-le.`;
+    const result = await callGemini(prompt);
+    out.innerHTML = `✅ <b>SPHINX FORGE TERMINÉE</b>\n\n${result}`;
+  }catch(e){
+    out.innerHTML = `<div class="error">❌ ERREUR: ${e.message}</div>`;
+  }
+  btn.disabled = false;
+}
+
+async function loadMatches(){
+  document.getElementById('liveData').innerHTML = 'Clique GÉNÉRER COUPON pour avoir les matchs analysés par l IA.';
+}
+
+async function askSphinx(){
+  const q = document.getElementById('chatInput').value;
+  const out = document.getElementById('chatData');
+  if(!q) return;
+  out.innerHTML = 'Sphinx réfléchit...';
+  try{
+    const result = await callGemini(`Tu es le SPHINX BET. Réponds en 3 lignes max: ${q}`);
+    out.innerHTML = `🗿 <b>SPHINX:</b>\n${result}`;
+  }catch(e){
+    out.innerHTML = `<div class="error">❌ ${e.message}</div>`;
+  }
+}
+</script>
+</body>
+</html>
