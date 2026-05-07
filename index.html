@@ -23,9 +23,9 @@ input{width:100%;padding:10px;margin:8px 0;background:#333;color:#fff;border:1px
 <div>IA Totale: Matchs Réels + Actu + Coupons + Prédictions</div>
 </div>
 
-<button class="tab active" onclick="showTab('live')">Matchs Live</button>
-<button class="tab" onclick="showTab('coupon')">Créer Coupon</button>
-<button class="tab" onclick="showTab('chat')">Parler au Sphinx</button>
+<button class="tab active" onclick="showTab('live',this)">Matchs Live</button>
+<button class="tab" onclick="showTab('coupon',this)">Créer Coupon</button>
+<button class="tab" onclick="showTab('chat',this)">Parler au Sphinx</button>
 
 <div id="live" class="result">
 <button class="btn" onclick="loadMatches()">CHARGER MATCHS J+J+1 + ANALYSE IA</button>
@@ -46,16 +46,16 @@ input{width:100%;padding:10px;margin:8px 0;background:#333;color:#fff;border:1px
 <script>
 let keys = {gemini: 'AIzaSyCKJXs5FsqbbZ_5pDzHK6M_IKYzOtHzuT4'};
 
-function showTab(tab){
-  docAIzaSyBp4liKiA691GYTWFkff2KeRdmK1QzENp4ument.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  event.target.classList.add('active');
+function showTab(tab,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
   document.getElementById('live').style.display = tab=='live'?'block':'none';
   document.getElementById('coupon').style.display = tab=='coupon'?'block':'none';
   document.getElementById('chat').style.display = tab=='chat'?'block':'none';
 }
 
 async function callGemini(prompt){
-  if(keys.gemini.includes('AIzaSyCKJXs5FsqbbZ_5pDzHK6M_IKYzOtHzuT4')) throw new Error('Remplace COLLE_TA_CLE_ICI par ta vraie clé ligne 55');
+  if(keys.gemini.includes('TA_CLE_ICI')) throw new Error('Remplace TA_CLE_ICI par ta vraie clé ligne 47');
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${keys.gemini}`, {
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -63,7 +63,7 @@ async function callGemini(prompt){
   });
   const data = await res.json();
   if(data.error) throw new Error(data.error.message);
-  if(!data.candidates) throw new Error('Réponse vide. Clé invalide ou quota épuisé. Vérifie sur aistudio.google.com');
+  if(!data.candidates) throw new Error('Réponse vide. Clé invalide ou quota épuisé.');
   return data.candidates[0].content.parts[0].text;
 }
 
