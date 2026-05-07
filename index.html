@@ -44,7 +44,7 @@ input{width:100%;padding:10px;margin:8px 0;background:#333;color:#fff;border:1px
 </div>
 
 <script>
-let keys = {gemini: 'AIzaSyCKJXs5FsqbbZ_5pDzHK6M_IKYzOtHzuT4'};
+let keys = {gemini: 'AIzaSyBuRU9dcspby45TxxIvn_00DUdAWUH04J4'};
 
 function showTab(tab){
   document.getElementById('tabLive').classList.remove('active');
@@ -60,7 +60,7 @@ function showTab(tab){
 
 async function callGemini(prompt){
   if(keys.gemini.includes('COLLE_TA_CLE')) throw new Error('Remplace COLLE_TA_CLE_ICI par ta vraie clé ligne 47');
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${keys.gemini}`, {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${keys.gemini}`, {
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
