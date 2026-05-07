@@ -1,140 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>SPHINX BET REAL 2026</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body{background:#0a0a0a;color:#ffd700;font-family:Arial;margin:0;padding:10px}
-   .key-box{background:#1a1a1a;border:1px solid #ffd700;padding:10px;margin:10px 0;border-radius:8px}
-   .key-box input{width:100%;background:#0a0a0a;color:#ffd700;border:1px solid #444;padding:8px;margin:5px 0}
-   .key-box button{background:#ffd700;color:#000;border:none;padding:8px 15px;font-weight:bold}
-   .tab{background:#333;color:#ffd700;border:none;padding:10px 15px;margin:2px}
-   .tab.active{background:#ffd700;color:#000}
-   .btn{background:#ffd700;color:#000;border:none;padding:12px;width:100%;font-weight:bold;margin:10px 0}
-   .match-card{background:#1a1a1a;border:1px solid #333;padding:10px;margin:8px 0;border-radius:8px}
-   .coupon-box{background:#0f1f0f;border:1px solid #0f0;padding:10px;margin:10px 0}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPHINX BET REAL 2026</title>
+<style>
+body{background:#0a0a0a;color:#fff;font-family:Arial,sans-serif;margin:0;padding:15px}
+.header{text-align:center;margin-bottom:20px}
+h1{color:#FFD700;font-size:28px;margin:10px 0}
+.tab{background:#333;color:#fff;border:none;padding:10px 15px;margin:5px;cursor:pointer;border-radius:5px}
+.tab.active{background:#FFD700;color:#000}
+.btn{background:#FFD700;color:#000;border:none;padding:12px 20px;width:100%;font-weight:bold;font-size:16px;border-radius:5px;margin:10px 0;cursor:pointer}
+.btn:disabled{background:#555;color:#888}
+.key-box{background:#1a1a1a;padding:15px;border-radius:8px;margin-bottom:20px;border:1px solid #FFD700}
+input{width:100%;padding:10px;margin:8px 0;background:#333;color:#fff;border:1px solid #555;border-radius:5px;box-sizing:border-box}
+.result{background:#1a1a1a;padding:15px;border-radius:8px;margin-top:15px;white-space:pre-wrap;font-size:14px;line-height:1.4}
+.error{color:#ff4444;background:#2a0a0a;padding:10px;border-radius:5px;margin:10px 0}
+</style>
 </head>
 <body>
-  <h1>🗿 SPHINX BET REAL 2026</h1>
-  <p>IA Totale: Matchs Réels + Actu + Coupons + Prédictions</p>
-  
-  <div class="key-box" id="keyBox">
-    <b>⚙️ CLÉS API - 1 seule fois</b><br>
-    <input id="geminiKey" placeholder="Clé Gemini - aistudio.google.com/app/apikey">
-    <input id="footballKey" placeholder="Clé API-Football - api-sports.io">
-    <input id="newsKey" placeholder="Clé NewsAPI - newsapi.org">
-    <button onclick="saveKeys()">SAUVER LES CLÉS</button>
-  </div>
+<div class="header">
+<h1>🗿 SPHINX BET REAL 2026</h1>
+<div>IA Totale: Matchs Réels + Actu + Coupons + Prédictions</div>
+</div>
 
-  <div>
-    <button class="tab active" onclick="showTab(0)">Matchs Live</button>
-    <button class="tab" onclick="showTab(1)">Créer Coupon</button>
-    <button class="tab" onclick="showTab(2)">Parler au Sphinx</button>
-  </div>
+<div id="keyBox" class="key-box">
+<b>⚙️ CLÉS API - 1 seule fois</b>
+<input type="password" id="geminiKey" placeholder="Clé Gemini - Obligatoire">
+<input type="text" id="footballKey" placeholder="Clé API-Football - Optionnel">
+<input type="text" id="newsKey" placeholder="Clé NewsAPI - Optionnel">
+<button class="btn" onclick="saveKeys()">SAUVER LES CLÉS</button>
+</div>
 
-  <div id="tab0">
-    <button class="btn" onclick="loadMatches()">CHARGER MATCHS J+J1 + ANALYSE IA</button>
-    <div id="matches"></div>
-  </div>
+<button class="tab active" onclick="showTab('live')">Matchs Live</button>
+<button class="tab" onclick="showTab('coupon')">Créer Coupon</button>
+<button class="tab" onclick="showTab('chat')">Parler au Sphinx</button>
+<button class="btn" style="background:#ff4444" onclick="resetKeys()">RESET CLÉS</button>
 
-  <div id="tab1" style="display:none">
-    <button class="btn" onclick="genCoupon()">GÉNÉRER COUPON SPHINX</button>
-    <div id="coupon" class="coupon-box"></div>
-  </div>
+<div id="live" class="result">
+<button class="btn" onclick="loadMatches()">CHARGER MATCHS J+J+1 + ANALYSE IA</button>
+<div id="liveData"></div>
+</div>
 
-  <div id="tab2" style="display:none">
-    <input id="question" placeholder="Pose ta question au Sphinx..." style="width:100%;padding:10px;background:#1a1a1a;color:#ffd700;border:1px solid #444">
-    <button class="btn" onclick="askSphinx()">INTERROGER LE SPHINX</button>
-    <div id="answer" class="coupon-box"></div>
-  </div>
+<div id="coupon" class="result" style="display:none">
+<button class="btn" id="genBtn" onclick="generateCoupon()">GÉNÉRER COUPON SPHINX</button>
+<div id="couponData"></div>
+</div>
+
+<div id="chat" class="result" style="display:none">
+<input type="text" id="chatInput" placeholder="Pose ta question au Sphinx...">
+<button class="btn" onclick="askSphinx()">DEMANDER AU SPHINX</button>
+<div id="chatData"></div>
+</div>
 
 <script>
-// Sauvegarde des clés
+let keys = JSON.parse(localStorage.getItem('sphinxKeys') || '{}');
+
+if(keys.gemini) document.getElementById('keyBox').style.display = 'none';
+
 function saveKeys(){
-  localStorage.setItem('gemini', geminiKey.value)
-  localStorage.setItem('football', footballKey.value) 
-  localStorage.setItem('news', newsKey.value)
-  document.getElementById('keyBox').innerHTML = '✅ Clés sauvées. Recharge la page.'
-  setTimeout(()=>location.reload(),1000)
-}
-
-// Check si clés existent
-if(localStorage.getItem('gemini')){
-  document.getElementById('keyBox').style.display='none'
-}else{
-  geminiKey.value = localStorage.getItem('gemini')||''
-  footballKey.value = localStorage.getItem('football')||''
-  newsKey.value = localStorage.getItem('news')||''
-}
-
-function showTab(n){
-  for(let i=0;i<3;i++){
-    document.getElementById('tab'+i).style.display=i==n?'block':'none'
-    document.querySelectorAll('.tab')[i].className=i==n?'tab active':'tab'
-  }
-}
-
-async function loadMatches(){
-  const F = localStorage.getItem('football')
-  const N = localStorage.getItem('news') 
-  const G = localStorage.getItem('gemini')
-  if(!F||!N||!G){return document.getElementById('matches').innerHTML='❌ Mets tes 3 clés API d’abord'}
-  
-  document.getElementById('matches').innerHTML='⏳ Le Sphinx invoque les dieux du foot...'
-  try{
-    const today = new Date().toISOString().split('T')[0]
-    const res = await fetch(`https://v3.football.api-sports.io/fixtures?date=${today}`,{
-      headers:{'x-apisports-key':F}
-    })
-    const data = await res.json()
-    let html = ''
-    data.response.slice(0,10).forEach(m=>{
-      html += `<div class="match-card">
-        <b>${m.teams.home.name} vs ${m.teams.away.name}</b><br>
-        ${m.league.name} - ${m.fixture.date.split('T')[1].slice(0,5)}<br>
-        Cotes: ${m.bookmakers?.[0]?.bets?.[0]?.values?.[0]?.odd||'N/A'}
-      </div>`
-    })
-    document.getElementById('matches').innerHTML = html||'Aucun match aujourd’hui'
-  }catch(e){
-    document.getElementById('matches').innerHTML='❌ Erreur: '+e
-  }
-}
-
-async function genCoupon(){
-  const G = localStorage.getItem('gemini')
-  if(!G){return document.getElementById('coupon').innerHTML='❌ Clé Gemini manquante'}
-  document.getElementById('coupon').innerHTML='⏳ Le Sphinx forge ton coupon...'
-  try{
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${G}`,{
-      method:'POST',
-      body:JSON.stringify({contents:[{parts:[{text:'Donne 3 pronostics foot sûrs pour aujourd’hui avec cotes estimées. Format: Equipe1 vs Equipe2 - Pronostic @Cote'}]}]})
-    })
-    const data = await res.json()
-    document.getElementById('coupon').innerHTML = data.candidates[0].content.parts[0].text.replace(/\n/g,'<br>')
-  }catch(e){
-    document.getElementById('coupon').innerHTML='❌ Le Sphinx refuse: '+e
-  }
-}
-
-async function askSphinx(){
-  const G = localStorage.getItem('gemini')
-  const q = document.getElementById('question').value
-  if(!G||!q){return document.getElementById('answer').innerHTML='❌ Mets ta clé + question'}
-  document.getElementById('answer').innerHTML='⏳ Le Sphinx réfléchit...'
-  try{
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${G}`,{
-      method:'POST', 
-      body:JSON.stringify({contents:[{parts:[{text:`Tu es le Sphinx, oracle des paris sportifs. Réponds à: ${q}`}]}]})
-    })
-    const data = await res.json()
-    document.getElementById('answer').innerHTML = data.candidates[0].content.parts[0].text.replace(/\n/g,'<br>')
-  }catch(e){
-    document.getElementById('answer').innerHTML='❌ Erreur: '+e
-  }
-}
-</script>
-</body>
-</html>
+  keys =
