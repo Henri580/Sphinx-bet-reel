@@ -1,112 +1,132 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SPHINX BET REAL 2026</title>
-<style>
-body{background:#0a0a0a;color:#fff;font-family:Arial,sans-serif;margin:0;padding:15px}
-.header{text-align:center;margin-bottom:20px}
-h1{color:#FFD700;font-size:28px;margin:10px 0}
-.tab{background:#333;color:#fff;border:none;padding:10px 15px;margin:5px;cursor:pointer;border-radius:5px}
-.tab.active{background:#FFD700;color:#000}
-.btn{background:#FFD700;color:#000;border:none;padding:12px 20px;width:100%;font-weight:bold;font-size:16px;border-radius:5px;margin:10px 0;cursor:pointer}
-.btn:disabled{background:#555;color:#888}
-.result{background:#1a1a1a;padding:15px;border-radius:8px;margin-top:15px;white-space:pre-wrap;font-size:14px;line-height:1.4}
-.error{color:#ff4444;background:#2a0a0a;padding:10px;border-radius:5px;margin:10px 0}
-input{width:100%;padding:10px;margin:8px 0;background:#333;color:#fff;border:1px solid #555;border-radius:5px;box-sizing:border-box}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sphinx Bet Reel</title>
+  <style>
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+   .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+   .tab {
+      padding: 10px 20px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+   .tab.active {
+      background: #ff6b00;
+      border-color: #ff6b00;
+    }
+   .content {
+      display: none;
+    }
+    button {
+      background: #ff6b00;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 20px 0;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    #output {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      line-height: 1.8;
+    }
+  </style>
 </head>
 <body>
-<div class="header">
-<h1>🗿 SPHINX BET REAL 2026</h1>
-<div>IA Totale: Matchs Réels + Actu + Coupons + Prédictions</div>
-</div>
 
-<button class="tab active" id="tabLive" onclick="showTab('live')">Matchs Live</button>
-<button class="tab" id="tabCoupon" onclick="showTab('coupon')">Créer Coupon</button>
-<button class="tab" id="tabChat" onclick="showTab('chat')">Parler au Sphinx</button>
+  <h1>🗿 SPHINX BET REEL</h1>
 
-<div id="live" class="result">
-<button class="btn" onclick="loadMatches()">CHARGER MATCHS J+J+1 + ANALYSE IA</button>
-<div id="liveData"></div>
-</div>
+  <div class="tabs">
+    <div id="tabLive" class="tab" onclick="showTab('live')">Live</div>
+    <div id="tabCoupon" class="tab active" onclick="showTab('coupon')">Coupon</div>
+    <div id="tabChat" class="tab" onclick="showTab('chat')">Chat</div>
+  </div>
 
-<div id="coupon" class="result" style="display:none">
-<button class="btn" id="genBtn" onclick="generateCoupon()">GÉNÉRER COUPON SPHINX</button>
-<div id="couponData"></div>
-</div>
+  <div id="live" class="content">
+    <h2>Matchs Live</h2>
+    <p>Bientôt disponible...</p>
+  </div>
 
-<div id="chat" class="result" style="display:none">
-<input type="text" id="chatInput" placeholder="Pose ta question au Sphinx...">
-<button class="btn" onclick="askSphinx()">DEMANDER AU SPHINX</button>
-<div id="chatData"></div>
-</div>
+  <div id="coupon" class="content" style="display:block;">
+    <h2>Générer Coupon Sphinx</h2>
+    <button onclick="genererCouponSphinx()">GÉNÉRER COUPON SPHINX</button>
+    <div id="output">Clique pour forger ton coupon...</div>
+  </div>
+
+  <div id="chat" class="content">
+    <h2>Chat Sphinx</h2>
+    <p>Bientôt disponible...</p>
+  </div>
 
 <script>
-let keys = {gemini: 'AIzaSyAaxaIrISNtthRjExUsmS6gqqE0dEyhPkI'};
-
 function showTab(tab){
   document.getElementById('tabLive').classList.remove('active');
   document.getElementById('tabCoupon').classList.remove('active');
   document.getElementById('tabChat').classList.remove('active');
   document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('active');
-  
+
   document.getElementById('live').style.display = 'none';
   document.getElementById('coupon').style.display = 'none';
   document.getElementById('chat').style.display = 'none';
   document.getElementById(tab).style.display = 'block';
 }
 
-async function callGemini(prompt){
-  if(keys.gemini.includes('COLLE_TA_CLE')) throw new Error('Remplace COLLE_TA_CLE_ICI par ta vraie clé ligne 47');
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${keys.gemini}`, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
-  });
-  const data = await res.json();
-  if(data.error) throw new Error(data.error.message);
-  if(!data.candidates) throw new Error('Réponse vide. Clé invalide ou quota épuisé.');
-  return data.candidates[0].content.parts[0].text;
-}
-
-async function generateCoupon(){
-  const btn = document.getElementById('genBtn');
-  const out = document.getElementById('couponData');
+async function genererCouponSphinx(){
+  const btn = document.querySelector('button');
   btn.disabled = true;
-  out.innerHTML = '🗿 Le Sphinx forge ton coupon...';
-  try{
-    const prompt = `Tu es le SPHINX BET. Date: ${new Date().toLocaleDateString('fr-FR')}. Donne-moi 3 pronos foot du jour ultra sûrs avec cotes réelles. Format exact:
-1. Equipe A vs Equipe B - Prono @ Cote
-2. Equipe C vs Equipe D - Prono @ Cote  
-3. Equipe E vs Equipe F - Prono @ Cote
-Cote totale: X.XX
-Uniquement des matchs réels de J+J+1. Pas d'invention. Si pas de matchs, dis-le.`;
-    const result = await callGemini(prompt);
-    out.innerHTML = `✅ <b>SPHINX FORGE TERMINÉE</b>\n\n${result}`;
-  }catch(e){
-    out.innerHTML = `<div class="error">❌ ERREUR: ${e.message}</div>`;
+  document.getElementById('output').innerHTML = '🗿 Le Sphinx forge SANS CLÉ...';
+
+  try {
+    const res = await fetch('https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        inputs: "<s> Tu es le Sphinx des paris sportifs 2026. Donne 3 matchs de foot réels d'aujourd'hui 6 mai 2026 avec pronos et cotes. Format: 1. Equipe A vs Equipe B - Prono @ cote. Cote totale à la fin. [/INST]",
+        parameters: { max_new_tokens: 300, temperature: 0.7 }
+      })
+    });
+
+    const data = await res.json();
+
+    if(data.error){
+      throw new Error(data.error);
+    }
+
+    let texte = data[0].generated_text;
+    if(texte.includes('[/INST]')){
+      texte = texte.split('[/INST]')[1];
+    }
+
+    document.getElementById('output').innerHTML = `✅ SPHINX FORGE TERMINÉE<br><br>${texte.trim().replace(/\n/g,'<br>')}`;
+
+  } catch(e) {
+    document.getElementById('output').innerHTML = `❌ ERREUR: ${e.message}<br><br>Si "Model is loading", attends 20 sec et reclique.`;
   }
   btn.disabled = false;
 }
-
-async function loadMatches(){
-  document.getElementById('liveData').innerHTML = 'Clique sur Créer Coupon puis GÉNÉRER COUPON pour avoir les matchs analysés par l IA.';
-}
-
-async function askSphinx(){
-  const q = document.getElementById('chatInput').value;
-  const out = document.getElementById('chatData');
-  if(!q) return;
-  out.innerHTML = 'Sphinx réfléchit...';
-  try{
-    const result = await callGemini(`Tu es le SPHINX BET. Réponds en 3 lignes max: ${q}`);
-    out.innerHTML = `🗿 <b>SPHINX:</b>\n${result}`;
-  }catch(e){
-    out.innerHTML = `<div class="error">❌ ${e.message}</div>`;
-  }
-}
 </script>
+
 </body>
 </html>
