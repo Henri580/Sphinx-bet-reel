@@ -44,7 +44,7 @@ input{width:100%;padding:10px;margin:8px 0;background:#333;color:#fff;border:1px
 </div>
 
 <script>
-let keys = {gemini: ''};
+let keys = {gemini: 'AIzaSyCKJXs5FsqbbZ_5pDzHK6M_IKYzOtHzuT4'};
 
 function showTab(tab){
   docAIzaSyBp4liKiA691GYTWFkff2KeRdmK1QzENp4ument.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -55,7 +55,7 @@ function showTab(tab){
 }
 
 async function callGemini(prompt){
-  if(keys.gemini.includes('AIzaSyBp4liKiA691GYTWFkff2KeRdmK1QzENp4')) throw new Error('Remplace COLLE_TA_CLE_ICI par ta vraie clé ligne 55');
+  if(keys.gemini.includes('AIzaSyCKJXs5FsqbbZ_5pDzHK6M_IKYzOtHzuT4')) throw new Error('Remplace COLLE_TA_CLE_ICI par ta vraie clé ligne 55');
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${keys.gemini}`, {
     method:'POST',
     headers:{'Content-Type':'application/json'},
