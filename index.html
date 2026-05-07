@@ -1,132 +1,84 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sphinx Bet Reel</title>
-  <style>
-    body {
-      background: #0a0a0a;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-   .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-   .tab {
-      padding: 10px 20px;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-   .tab.active {
-      background: #ff6b00;
-      border-color: #ff6b00;
-    }
-   .content {
-      display: none;
-    }
-    button {
-      background: #ff6b00;
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 20px 0;
-    }
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    #output {
-      background: #1a1a1a;
-      padding: 20px;
-      border-radius: 8px;
-      margin-top: 20px;
-      line-height: 1.8;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sphinx V5.0 - Groq</title>
+<style>
+body{margin:0;background:#0a0a0a;color:#e0e0e0;font-family:Arial}
+.header{padding:15px;text-align:center;background:#111;border-bottom:1px solid #333}
+.nav{display:flex;background:#111}
+.nav button{flex:1;padding:12px;background:none;border:none;color:#888;border-bottom:2px solid transparent;cursor:pointer}
+.nav button.active{color:#00ff88;border-bottom:2px solid #00ff88}
+.tab{padding:20px;display:none}
+.tab.active{display:block}
+button{width:100%;padding:15px;background:#00ff88;color:#000;border:none;border-radius:8px;font-weight:bold;cursor:pointer;font-size:16px}
+button:disabled{opacity:0.5}
+#output{margin-top:20px;padding:15px;background:#111;border-radius:8px;white-space:pre-wrap;line-height:1.6}
+</style>
 </head>
 <body>
+<div class="header"><h1>🗿 SPHINX V5.0 GROQ</h1></div>
+<div class="nav">
+  <button id="tabLive" onclick="showTab('live')">Live</button>
+  <button id="tabCoupon" class="active" onclick="showTab('coupon')">Coupon</button>
+  <button id="tabChat" onclick="showTab('chat')">Chat</button>
+</div>
 
-  <h1>🗿 SPHINX BET REEL</h1>
+<div id="live" class="tab"><p>Section Live bientôt...</p></div>
 
-  <div class="tabs">
-    <div id="tabLive" class="tab" onclick="showTab('live')">Live</div>
-    <div id="tabCoupon" class="tab active" onclick="showTab('coupon')">Coupon</div>
-    <div id="tabChat" class="tab" onclick="showTab('chat')">Chat</div>
-  </div>
+<div id="coupon" class="tab active">
+  <button onclick="genererCouponSphinx()">⚡ GÉNÉRER COUPON SPHINX</button>
+  <div id="output">Clique pour forger 3 pronos avec Llama3-70B</div>
+</div>
 
-  <div id="live" class="content">
-    <h2>Matchs Live</h2>
-    <p>Bientôt disponible...</p>
-  </div>
-
-  <div id="coupon" class="content" style="display:block;">
-    <h2>Générer Coupon Sphinx</h2>
-    <button onclick="genererCouponSphinx()">GÉNÉRER COUPON SPHINX</button>
-    <div id="output">Clique pour forger ton coupon...</div>
-  </div>
-
-  <div id="chat" class="content">
-    <h2>Chat Sphinx</h2>
-    <p>Bientôt disponible...</p>
-  </div>
+<div id="chat" class="tab"><p>Section Chat bientôt...</p></div>
 
 <script>
 function showTab(tab){
-  document.getElementById('tabLive').classList.remove('active');
-  document.getElementById('tabCoupon').classList.remove('active');
-  document.getElementById('tabChat').classList.remove('active');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('active');
-
-  document.getElementById('live').style.display = 'none';
-  document.getElementById('coupon').style.display = 'none';
-  document.getElementById('chat').style.display = 'none';
-  document.getElementById(tab).style.display = 'block';
+  document.querySelectorAll('.tab').forEach(t=>t.style.display='none');
+  document.getElementById(tab).style.display='block';
 }
 
 async function genererCouponSphinx(){
-  const btn = document.querySelector('button');
+  const btn = document.querySelector('#coupon button');
+  const out = document.getElementById('output');
   btn.disabled = true;
-  document.getElementById('output').innerHTML = '🗿 Le Sphinx forge SANS CLÉ...';
-
+  out.innerHTML = '⚡ Le Sphinx Groq forge à la vitesse lumière...';
+  
+  const GROQ_KEY = 'gsk_REMPLACE_PAR_TA_CLE';
+  
   try {
-    const res = await fetch('https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1', {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Authorization': 'Bearer ' + GROQ_KEY,
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
-        inputs: "<s> Tu es le Sphinx des paris sportifs 2026. Donne 3 matchs de foot réels d'aujourd'hui 6 mai 2026 avec pronos et cotes. Format: 1. Equipe A vs Equipe B - Prono @ cote. Cote totale à la fin. [/INST]",
-        parameters: { max_new_tokens: 300, temperature: 0.7 }
+        model: 'llama3-70b-8192',
+        messages: [{
+          role: 'user', 
+          content: 'Tu es le Sphinx des paris sportifs. Donne 3 matchs de foot réels du 6 mai 2026 avec pronos et cotes. Format: 1. Equipe A vs Equipe B - Prono @ cote. Donne la cote totale à la fin. Réponds direct sans blabla.'
+        }],
+        temperature: 0.7,
+        max_tokens: 400
       })
     });
-
+    
     const data = await res.json();
-
-    if(data.error){
-      throw new Error(data.error);
-    }
-
-    let texte = data[0].generated_text;
-    if(texte.includes('[/INST]')){
-      texte = texte.split('[/INST]')[1];
-    }
-
-    document.getElementById('output').innerHTML = `✅ SPHINX FORGE TERMINÉE<br><br>${texte.trim().replace(/\n/g,'<br>')}`;
-
+    if(data.error) throw new Error(data.error.message);
+    
+    const texte = data.choices[0].message.content;
+    out.innerHTML = `✅ SPHINX GROQ FORGE TERMINÉE<br><br>${texte.replace(/\n/g,'<br>')}`;
+    
   } catch(e) {
-    document.getElementById('output').innerHTML = `❌ ERREUR: ${e.message}<br><br>Si "Model is loading", attends 20 sec et reclique.`;
+    out.innerHTML = `❌ ERREUR: ${e.message}`;
   }
   btn.disabled = false;
 }
 </script>
-
 </body>
 </html>
